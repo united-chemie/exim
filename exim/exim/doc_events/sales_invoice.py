@@ -210,7 +210,7 @@ def create_jv_with_gst(self):
 		row2 = {
 			"account": company_gst_payable_account,
 			"credit_in_account_currency": 0,
-			"debit_in_account_currency": flt(taxes.tax_amount,currency_precision),
+			"debit_in_account_currency": integer_part,
 			"exchange_rate": 1,
 			"cost_center": self.cost_center
 			
@@ -230,8 +230,8 @@ def create_jv_with_gst(self):
 				"debit_in_account_currency": decimal_part,
 				"exchange_rate": 1,
 				"cost_center": self.cost_center,
-				"party_type": "Customer",
-   				"party": self.customer
+				# "party_type": "Customer",
+   				# "party": self.customer
 			}
 			apply_accounting_dimensions(self, row3)
 			jv.append("accounts", row3)
