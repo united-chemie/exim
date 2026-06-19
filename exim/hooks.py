@@ -132,6 +132,11 @@ from erpnext.controllers import accounts_controller
 accounts_controller.get_due_date = get_due_date
 
 
+from erpnext.accounts import party
+from exim.exim.monkey_patch.accounts_controller import get_due_date_from_template
+party.get_due_date_from_template = get_due_date_from_template
+
+
 # Overriding Whitelisted Methods
 # ------------------------------
 #
