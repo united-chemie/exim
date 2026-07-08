@@ -263,36 +263,36 @@ frappe.ui.form.on("Sales Invoice", {
             });
         }
     },
-    custom_consignee_address: function (frm) {
-        if (cur_frm.doc.custom_consignee_address) {
-            return frappe.call({
-                method: "frappe.contacts.doctype.address.address.get_address_display",
-                args: {
-                    "address_dict": frm.doc.custom_consignee_address
-                },
-                callback: function (r) {
-                    if (r.message)
-                        frm.set_value("custom_consignee_address_display", r.message);
-                }
-            });
-        }
-    },
-    custom_address: function (frm) {
-        if (cur_frm.doc.custom_address) {
-            return frappe.call({
-                method: "frappe.contacts.doctype.address.address.get_address_display",
-                args: {
-                    "address_dict": frm.doc.custom_address
-                },
-                callback: function (r) {
-                    if (r.message) {
+    // custom_consignee_address: function (frm) {
+    //     if (cur_frm.doc.custom_consignee_address) {
+    //         return frappe.call({
+    //             method: "frappe.contacts.doctype.address.address.get_address_display",
+    //             args: {
+    //                 "address_dict": frm.doc.custom_consignee_address
+    //             },
+    //             callback: function (r) {
+    //                 if (r.message)
+    //                     frm.set_value("custom_consignee_address_display", r.message);
+    //             }
+    //         });
+    //     }
+    // },
+    // custom_address: function (frm) {
+    //     if (cur_frm.doc.custom_address) {
+    //         return frappe.call({
+    //             method: "frappe.contacts.doctype.address.address.get_address_display",
+    //             args: {
+    //                 "address_dict": frm.doc.custom_address
+    //             },
+    //             callback: function (r) {
+    //                 if (r.message) {
 
-                        frm.set_value("custom_address_display", r.message);
-                    }
-                }
-            });
-        }
-    },
+    //                     frm.set_value("custom_address_display", r.message);
+    //                 }
+    //             }
+    //         });
+    //     }
+    // },
 
     cal_igst_amount: function (frm) {
         let total_igst = 0.0;
