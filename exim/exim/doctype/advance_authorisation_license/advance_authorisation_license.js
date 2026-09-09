@@ -48,3 +48,52 @@ frappe.ui.form.on("Item Import Ratio", {
 	// 	}
 	// },
 });
+
+frappe.ui.form.on("Export Against AAL", {
+    sales_invoice: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+
+        if (!row.sales_invoice) {
+            return;
+        }
+
+        frappe.call({
+            method: "frappe.client.get",
+            args: {
+                doctype: "Sales Invoice",
+                name: row.sales_invoice
+            },
+            callback: function(r) {
+
+                if (!r.message) {
+                    return;
+                }
+
+                let invoice = r.message;
+                let item = invoice.items && invoice.items[0];
+				console.log(item)
+                if (!item) {
+                    frappe.msgprint("No items found in Sales Invoice");
+                    return;
+                }
+                frappe.model.set_value(cdt, cdn, "item_code", item.item_code);
+                frappe.model.set_value(cdt, cdn, "quantity", item.qty);
+				frappe.model.set_value(cdt, cdn, "shipping_bill_no", invoice.shipping_bill_number);
+				frappe.model.set_value(cdt, cdn, "shipping_bill_date", invoice.shipping_bill_date);
+				frappe.model.set_value(cdt, cdn, "currency", invoice.currency);
+				frappe.model.set_value(cdt, cdn, "port_of_loading", invoice.port_of_loading);
+				frappe.model.set_value(cdt, cdn, "port_of_discharge", invoice.port_of_discharge);
+				frappe.model.set_value(cdt, cdn, "base_fob_value", item.base_fob_value || 0);
+
+
+                frappe.model.set_value(
+                    cdt,
+                    cdn,
+                    "fob_value",
+                    item.fob_value || 0
+                );
+                frm.refresh_field("exports");
+            }
+        });
+    }
+});
