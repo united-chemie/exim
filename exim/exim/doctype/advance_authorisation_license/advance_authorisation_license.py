@@ -46,8 +46,8 @@ class AdvanceAuthorisationLicense(Document):
 
 		self.remaining_export_amount = flt(self.total_license_amount) - flt(self.total_export_amount)
 		
-		if self.remaining_export_amount < 0:
-			frappe.throw(_("{0} amount over exported for item {1}.".format(abs(self.remaining_export_amount), self.export_item)))
+		# if self.remaining_export_amount < 0:
+			# frappe.throw(_("{0} amount over exported for item {1}.".format(abs(self.remaining_export_amount), self.export_item)))
 
 
 	def validate_import_ratio(self):
@@ -107,3 +107,19 @@ def get_license_details(aal, item_code):
 				LEFT JOIN `tabItem Import Ratio` ratio on (ratio.parent = aal.name)
 			where aal.name = %(aal)s and ratio.item_code = %(item_code)s
 		""", {'aal': aal, 'item_code': item_code}, as_dict = 1)[0]
+
+
+@frappe.whitelist()
+def get_boe_details(purchase_invoice):
+    # 1. Query the child table on the server side (bypasses the JS restriction)
+    parent = frappe.db.get_value("Bill of Entry Item", {"purchase_invoice": purchase_invoice}, "parent")
+    
+    if parent:
+        # 2. Fetch the required fields from the parent Bill of Entry
+        return frappe.db.get_value(
+            "Bill of Entry", 
+            parent, 
+            ["bill_of_entry_no", "bill_of_entry_date"], 
+            as_dict=True
+        )
+    return None

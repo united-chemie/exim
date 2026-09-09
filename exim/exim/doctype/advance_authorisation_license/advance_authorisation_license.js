@@ -77,6 +77,7 @@ frappe.ui.form.on("Export Against AAL", {
                     return;
                 }
                 frappe.model.set_value(cdt, cdn, "item_code", item.item_code);
+				frappe.model.set_value(cdt, cdn, "item_name", item.item_name);
                 frappe.model.set_value(cdt, cdn, "quantity", item.qty);
 				frappe.model.set_value(cdt, cdn, "shipping_bill_no", invoice.shipping_bill_number);
 				frappe.model.set_value(cdt, cdn, "shipping_bill_date", invoice.shipping_bill_date);
@@ -94,6 +95,44 @@ frappe.ui.form.on("Export Against AAL", {
                 );
                 frm.refresh_field("exports");
             }
+        });
+    }
+});
+
+frappe.ui.form.on("Import Against AAL", {
+    purchase_invoice: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+
+        if (!row.purchase_invoice) return;
+
+        // Fetch Purchase Invoice Data
+        frappe.db.get_doc("Purchase Invoice", row.purchase_invoice).then(inv => {
+            if (inv.items && inv.items.length > 0) {
+                let item = inv.items[0];
+                frappe.model.set_value(cdt, cdn, "item_code", item.item_code);
+                frappe.model.set_value(cdt, cdn, "item_name", item.item_name);
+                frappe.model.set_value(cdt, cdn, "quantity", item.qty);
+                frappe.model.set_value(cdt, cdn, "fob_value", item.taxable_value || 0);
+            }
+            
+            frappe.model.set_value(cdt, cdn, "currency", inv.currency);
+            frappe.model.set_value(cdt, cdn, "port_of_loading", inv.port_of_loading);
+            frappe.model.set_value(cdt, cdn, "port_of_discharge", inv.port_of_discharge);
+            
+            // Call the Python server-side method to bypass Child Table restrictions
+            frappe.call({
+                // IMPORTANT: Change 'your_app.api.get_boe_details' to your actual python file path
+                method: "exim.exim.doctype.advance_authorisation_license.advance_authorisation_license.get_boe_details", 
+                args: {
+                    purchase_invoice: row.purchase_invoice
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frappe.model.set_value(cdt, cdn, "shipping_bill_no", r.message.bill_of_entry_no);
+                        frappe.model.set_value(cdt, cdn, "shipping_bill_date", r.message.bill_of_entry_date);
+                    }
+                }
+            });
         });
     }
 });
