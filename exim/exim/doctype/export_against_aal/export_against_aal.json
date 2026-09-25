@@ -13,6 +13,7 @@
   "fob_value",
   "base_fob_value",
   "cif_value",
+  "remaining_qty",
   "column_break1",
   "shipping_bill_no",
   "shipping_bill_date",
@@ -20,7 +21,8 @@
   "port_of_loading",
   "port_of_discharge",
   "sales_invoice",
-  "old_sales_invoice"
+  "old_sales_invoice",
+  "brc_no"
  ],
  "fields": [
   {
@@ -114,11 +116,22 @@
    "fieldtype": "Data",
    "label": "FOB Value",
    "options": "currency"
+  },
+  {
+   "fieldname": "remaining_qty",
+   "fieldtype": "Float",
+   "label": "Remaining Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "brc_no",
+   "fieldtype": "Data",
+   "label": "BRC No"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2026-09-09 14:17:58.131676",
+ "modified": "2026-09-25 16:15:51.751235",
  "modified_by": "Administrator",
  "module": "Exim",
  "name": "Export Against AAL",

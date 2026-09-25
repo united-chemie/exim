@@ -71,7 +71,6 @@ frappe.ui.form.on("Export Against AAL", {
 
                 let invoice = r.message;
                 let item = invoice.items && invoice.items[0];
-				console.log(item)
                 if (!item) {
                     frappe.msgprint("No items found in Sales Invoice");
                     return;
@@ -85,6 +84,7 @@ frappe.ui.form.on("Export Against AAL", {
 				frappe.model.set_value(cdt, cdn, "port_of_loading", invoice.port_of_loading);
 				frappe.model.set_value(cdt, cdn, "port_of_discharge", invoice.port_of_discharge);
 				frappe.model.set_value(cdt, cdn, "base_fob_value", item.base_fob_value || 0);
+                frappe.model.set_value(cdt,cdn, "brc_no", invoice.brc_no);
 
 
                 frappe.model.set_value(
