@@ -140,18 +140,23 @@ frappe.ui.form.on("Sales Invoice", {
         let total_packages = 0;
         let total_gr_wt = 0;
         let total_tare_wt = 0;
-        let total_freight = 0;
         let total_insurance = 0;
         let total_fob_value = 0;
 
+        // Use current item values, as document totals may not be refreshed yet.
+        const item_total_qty = frm.doc.items.reduce((total, row) => total + flt(row.qty), 0);
+        const item_base_total = frm.doc.items.reduce((total, row) => total + flt(row.base_amount), 0);
+        const distribute_by_qty = frm.doc.freight_calculated === "By Qty" && item_total_qty;
+        const distribute_by_amount = frm.doc.freight_calculated === "By Amount" && item_base_total;
+
         frm.doc.items.forEach(function (d) {
-            if (frm.doc.freight_calculated == "By Qty") {
-                d.freight = frm.doc.freight * d.qty / frm.doc.total_qty;
-                d.insurance = frm.doc.insurance * d.qty / frm.doc.total_qty;
+            if (distribute_by_qty) {
+                d.freight = flt(frm.doc.freight) * flt(d.qty) / item_total_qty;
+                d.insurance = flt(frm.doc.insurance) * flt(d.qty) / item_total_qty;
             }
-            else if (frm.doc.freight_calculated == "By Amount") {
-                d.freight = frm.doc.freight * d.base_amount / frm.doc.base_total;
-                d.insurance = frm.doc.insurance * d.base_amount / frm.doc.base_total;
+            else if (distribute_by_amount) {
+                d.freight = flt(frm.doc.freight) * flt(d.base_amount) / item_base_total;
+                d.insurance = flt(frm.doc.insurance) * flt(d.base_amount) / item_base_total;
             }
             
             d.total_tare_weight = d.tare_wt * d.no_of_packages;
@@ -171,7 +176,6 @@ frappe.ui.form.on("Sales Invoice", {
             total_packages += flt(d.no_of_packages);
             total_tare_wt += flt(d.total_tare_weight);
             total_gr_wt += flt(d.gross_wt);
-            total_freight += flt(d.freight);
             total_insurance += flt(d.insurance);
         });
 
@@ -181,10 +185,11 @@ frappe.ui.form.on("Sales Invoice", {
         frm.set_value("total_packages", total_packages);
         frm.set_value("total_gr_wt", total_gr_wt);
         frm.set_value("total_tare_wt", total_tare_wt);
-        if (!((frm.doc.freight_calculated == "By Qty") || (frm.doc.freight_calculated == "By Amount"))) {
-            frm.set_value("freight", total_freight);
+        // Keep a manually entered header Freight value; do not overwrite it with
+        // the zero total from empty item Freight rows.
+        if (distribute_by_qty || distribute_by_amount) {
+            frm.set_value("insurance", total_insurance);
         }
-        frm.set_value("insurance", total_insurance);
         frm.set_value("total_fob_value", total_fob_value);
     },
     duty_calculation: function (frm) {
